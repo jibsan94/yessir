@@ -8,13 +8,24 @@ silencia los permisos de *ejecución de comandos*, no el criterio para preguntar
 ## Cómo funciona
 
 No es magia del modelo: instala un **hook `PreToolUse`** en `~/.claude/settings.json`
-con `matcher: "Bash"` que devuelve `permissionDecision: allow`. Así el harness aprueba
-cada llamada a Bash automáticamente.
+(matcher `Bash|Edit|Write|MultiEdit|NotebookEdit`) que ejecuta `yessir-allow.py`.
+El script decide el permiso según la herramienta y devuelve `permissionDecision: allow`:
+
+- **Bash** → **siempre** auto-aprobado.
+- **Edit / Write / MultiEdit / NotebookEdit** → auto-aprobado **solo si la skill
+  [`napkin`](https://github.com/jibsan94) está instalada** (`~/.claude/skills/napkin`).
+  Así yessir se complementa con napkin: si napkin no está, las ediciones siguen el
+  flujo normal de permisos.
+
+> **Recarga de hooks:** Claude Code carga los hooks al **arrancar la sesión**. Si
+> activas yessir a mitad de sesión (`/yessir`), el auto-aprobado de **ediciones** no
+> surte efecto hasta la siguiente sesión — por eso una curación de napkin al final de
+> esa misma sesión puede pedirte permiso una vez. **Reinicia Claude Code** tras activarlo.
 
 ## Instalación
 
 ```sh
-git clone https://github.com/<tu-usuario>/yessir.git
+git clone https://github.com/jibsan94/yessir.git
 cd yessir
 sh install.sh          # copia la skill a ~/.claude/skills/yessir/
 ```
@@ -52,17 +63,19 @@ yessir/
 └─ skills/
    └─ yessir/
       ├─ SKILL.md             # definición de la skill (la lee Claude)
-      ├─ yessir-allow.sh      # hook: imprime la decisión "allow"
+      ├─ yessir-allow.py      # decide el permiso (Bash siempre; ediciones si hay napkin)
+      ├─ yessir-allow.sh      # wrapper del hook: reenvía el evento a yessir-allow.py
       ├─ yessir-enable.sh     # fusiona el hook en settings.json (idempotente)
       └─ yessir-disable.sh    # quita el hook
 ```
 
 ## Seguridad
 
-Auto-aprobar todos los comandos es cómodo pero **potente**: el agente podrá ejecutar
-cualquier Bash sin confirmación. Úsalo en entornos de tu confianza (tu máquina/VM de
-desarrollo) y desactívalo cuando no lo necesites. El alcance está limitado a `Bash`
-(no afecta a otros permisos ni a las preguntas de contexto).
+Auto-aprobar comandos es cómodo pero **potente**: el agente podrá ejecutar cualquier
+Bash sin confirmación (y, si tienes `napkin` instalada, también editar/crear ficheros
+sin confirmación). Úsalo en entornos de tu confianza (tu máquina/VM de desarrollo) y
+desactívalo cuando no lo necesites. No afecta a las **preguntas de contexto**
+(`AskUserQuestion`): el agente te seguirá consultando decisiones e información.
 
 ## Subir a GitHub
 
@@ -70,6 +83,6 @@ desarrollo) y desactívalo cuando no lo necesites. El alcance está limitado a `
 cd /home/jjrosat/yessir
 git init && git add -A && git commit -m "yessir: skill sí-a-todo para comandos"
 git branch -M main
-git remote add origin https://github.com/<tu-usuario>/yessir.git
+git remote add origin https://github.com/jibsan94/yessir.git
 git push -u origin main
 ```

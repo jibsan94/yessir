@@ -25,7 +25,9 @@ def is_yessir(entry):
     return any("yessir-allow.sh" in h.get("command", "") for h in entry.get("hooks", []))
 
 pre = [e for e in pre if not is_yessir(e)]          # quita versiones previas
-pre.append({"matcher": "Bash",
+# Matcher amplio: Bash siempre; las ediciones las decide el propio script según
+# napkin (Edit/Write/MultiEdit/NotebookEdit). Un solo entry cubre todo.
+pre.append({"matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit",
             "hooks": [{"type": "command", "command": allow}]})
 hooks["PreToolUse"] = pre
 with open(settings, "w") as f:

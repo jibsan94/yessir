@@ -10,6 +10,12 @@ ejecutar comandos del sistema. No es magia del modelo: instala un **hook
 `PreToolUse`** en `~/.claude/settings.json` que, para el tool `Bash`, devuelve
 `permissionDecision: allow`.
 
+**Complemento con napkin:** el hook también auto-aprueba las **ediciones**
+(`Edit`/`Write`/`MultiEdit`/`NotebookEdit`) **solo si la skill `napkin` está
+instalada** (`~/.claude/skills/napkin`). Si napkin no está, las ediciones siguen el
+flujo normal de permisos. La decisión la toma `yessir-allow.py` (lee `tool_name` del
+stdin del hook); el matcher es `Bash|Edit|Write|MultiEdit|NotebookEdit`.
+
 ## Qué hacer al invocar esta skill
 
 1. **Activa** el modo ejecutando el script incluido:

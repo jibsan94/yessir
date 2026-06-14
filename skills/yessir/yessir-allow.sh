@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
-# Hook PreToolUse de la skill 'yessir'. Para cualquier llamada a Bash, devuelve
-# una decisión de permiso "allow" → el agente ejecuta el comando sin preguntar.
-# El evento llega por stdin (no hace falta leerlo). Salida = JSON en stdout.
-printf '%s' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow","permissionDecisionReason":"yessir: comando auto-aprobado"}}'
+# Hook PreToolUse de 'yessir'. Reenvía el evento (JSON por stdin) al script Python
+# que decide el permiso: Bash siempre; Edit/Write/MultiEdit/NotebookEdit solo si la
+# skill 'napkin' está instalada. Mantener el stdin intacto (no usar heredoc, que lo
+# consumiría). La salida JSON va a stdout.
+DIR=$(CDPATH= cd "$(dirname "$0")" && pwd)
+exec python3 "$DIR/yessir-allow.py"

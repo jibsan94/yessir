@@ -8,10 +8,11 @@ SRC=$(CDPATH= cd "$(dirname "$0")" && pwd)
 DEST="${CLAUDE_HOME:-$HOME/.claude}/skills/yessir"
 mkdir -p "$DEST"
 cp "$SRC/skills/yessir/SKILL.md" "$DEST/"
+cp "$SRC/skills/yessir/yessir-allow.py"   "$DEST/"
 cp "$SRC/skills/yessir/yessir-allow.sh"   "$DEST/"
 cp "$SRC/skills/yessir/yessir-enable.sh"  "$DEST/"
 cp "$SRC/skills/yessir/yessir-disable.sh" "$DEST/"
-chmod +x "$DEST"/*.sh
+chmod +x "$DEST"/*.sh "$DEST"/*.py
 echo "✅ Skill 'yessir' instalada en: $DEST"
 echo "   Actívala con  /yessir  en Claude Code"
 echo "   o ahora mismo:  sh \"$DEST/yessir-enable.sh\""
